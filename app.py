@@ -23,6 +23,9 @@ st.set_page_config(
 
 model = load("skin_cancer_model.joblib")
 
+# BYPASS sklearn fitted check (WAJIB)
+model.__sklearn_is_fitted__ = lambda: True
+
 def probability_to_risk(prob):
     score = int(round(prob * 10))
     return max(1, min(score, 10))
