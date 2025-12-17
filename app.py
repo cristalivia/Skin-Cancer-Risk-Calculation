@@ -1,38 +1,26 @@
+import domain_cleaner
+from domain_cleaner import DomainCleaner
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 from joblib import load
 import plotly.graph_objects as go
 
-# Import modul custom kamu
-# Pastikan file domain_cleaner.py ada di GitHub!
-try:
-    import domain_cleaner
-    from domain_cleaner import DomainCleaner
-except ImportError:
-    st.error("File 'domain_cleaner.py' tidak ditemukan. Pastikan file ini di-upload ke GitHub.")
-    st.stop()
-
-# =========================
 # CONFIG
-# =========================
 st.set_page_config(
     page_title="Skin Cancer Risk Prediction",
     layout="centered"
 )
 
-model = load("skin_cancer_model.joblib")
-
-# BYPASS sklearn fitted check (WAJIB)
-model.__sklearn_is_fitted__ = lambda: True
+cleaner = load("cleaner.joblib")
+model = load("model.joblib")
 
 def probability_to_risk(prob):
     score = int(round(prob * 10))
     return max(1, min(score, 10))
 
-# =========================
 # HEADER
-# =========================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -85,10 +73,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
-# =========================
 # INPUT FORM
-# =========================
 with st.form("risk_form"):
 
     st.subheader("👤 Demographics")
@@ -268,9 +253,7 @@ with st.form("risk_form"):
 
     submitted = st.form_submit_button("🔍 Predict Risk")
 
-# =========================
 # OUTPUT
-# =========================
 if submitted:
 
     user_df = pd.DataFrame([{
@@ -295,10 +278,9 @@ if submitted:
         "CHCSCNC1": skin_cancer,
         "CHCOCNC1": other_cancer
     }])
-    try:
-        prob = model.predict_proba(user_df)[0, 1]
-    except:
-        prob = float(model.predict(user_df)[0])
+    user_df_clean = cleaner.transform(user_df)
+
+    prob = model.predict_proba(user_df_clean)[0, 1]
     risk = probability_to_risk(prob)
 
     st.divider()
@@ -344,9 +326,7 @@ if submitted:
 
     st.write(recommendation)
 
-# =========================
 # Gauge Visualization
-# =========================
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=risk,
@@ -370,9 +350,7 @@ if submitted:
     st.plotly_chart(fig, use_container_width=True)
 
 
-# =========================
 # Recommended Actions
-# =========================
     st.markdown("""
     <div class="section-card">
         <h4>🩺 Recommended Actions</h4>
@@ -384,8 +362,6 @@ if submitted:
         </ul>
     </div>
     """, unsafe_allow_html=True)
-
-
 
 st.markdown("""
 <p style="font-size:12px; color:#577C8E; text-align:center; margin-top:40px;">
