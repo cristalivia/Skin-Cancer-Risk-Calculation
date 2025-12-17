@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 
 # CONFIG
 st.set_page_config(
-    page_title="Skin Cancer Risk Prediction",
+    page_title="Skin Cancer Risk Calculation",
     layout="centered"
 )
 
@@ -64,7 +64,7 @@ p, li {
 
 st.markdown("""
 <div class="section-card">
-    <h1>🚨 Skin Cancer Risk Detection</h1>
+    <h1>🚨 Skin Cancer Risk Calculation</h1>
     <p>
         This application uses a machine learning–based risk assessment model to estimate 
         an individual's potential risk of skin cancer based on demographic factors, 
